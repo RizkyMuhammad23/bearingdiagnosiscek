@@ -1,0 +1,171 @@
+{
+  "nama_model": "bearing-fault-classifier",
+  "versi_model": "1.0.0",
+  "dibuat": "2026-11-18 23:26",
+  "kasus": "04 Diagnosis Kerusakan Bearing",
+  "algoritma": "HistGradientBoosting + fitur turunan",
+  "parameter": {
+    "class_weight": null,
+    "l2_regularization": 1.0,
+    "learning_rate": 0.05,
+    "max_iter": 800,
+    "min_samples_leaf": 40
+  },
+  "jumlah_iterasi_boosting": 84,
+  "dilatih_dengan": "train + validation",
+  "fitur_masukan": {
+    "posisi_sensor": {
+      "tipe": "kategori",
+      "nilai": [
+        "drive_end",
+        "fan_end"
+      ]
+    },
+    "kecepatan_rpm": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        1000.0,
+        3000.0
+      ]
+    },
+    "beban_kN": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        0.5,
+        6.0
+      ]
+    },
+    "suhu_housing_C": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        35.0,
+        70.0
+      ]
+    },
+    "rms_g": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        0.1,
+        1.2
+      ]
+    },
+    "puncak_g": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        0.4,
+        4.5
+      ]
+    },
+    "kurtosis": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        0.0,
+        7.5
+      ]
+    },
+    "crest_factor": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        1.7,
+        5.2
+      ]
+    },
+    "energi_bpfo": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        0.0,
+        0.7
+      ]
+    },
+    "energi_bpfi": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        0.0,
+        0.5
+      ]
+    },
+    "energi_bsf": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        0.0,
+        0.45
+      ]
+    },
+    "frekuensi_dominan_hz": {
+      "tipe": "angka",
+      "rentang_wajar": [
+        15.0,
+        290.0
+      ]
+    }
+  },
+  "fitur_turunan": [
+    "orde_frekuensi",
+    "energi_total",
+    "porsi_bpfo",
+    "porsi_bpfi",
+    "porsi_bsf",
+    "log_rasio_bpfo_bpfi",
+    "log_rasio_bsf_bpfi"
+  ],
+  "kelas": [
+    "normal",
+    "outer_race",
+    "inner_race",
+    "bola"
+  ],
+  "aturan_keputusan": "argmax probabilitas (kelas dengan probabilitas tertinggi)",
+  "threshold": {
+    "ambang_keyakinan": 0.65,
+    "arti": "jika probabilitas tertinggi < ambang, prediksi tetap ditampilkan tetapi ditandai perlu dicek analis",
+    "dipilih_dari": "data validation: ambang terkecil dengan akurasi >= 0.90 pada prediksi yang lolos"
+  },
+  "metrik": {
+    "metrik_utama": "macro F1",
+    "baseline": {
+      "nama": "Baseline: regresi logistik (fitur asli)",
+      "macro_f1_validation": 0.7247,
+      "macro_f1_test": 0.7466
+    },
+    "final": {
+      "macro_f1_validation": 0.8197,
+      "macro_f1_test": 0.7991,
+      "akurasi_test": 0.8458,
+      "f1_per_kelas_test": {
+        "normal": 0.8885,
+        "outer_race": 0.8337,
+        "inner_race": 0.7804,
+        "bola": 0.6938
+      }
+    }
+  },
+  "data": {
+    "baris_mentah": 15220,
+    "baris_bersih": 15000,
+    "train": 10500,
+    "validation": 2250,
+    "test": 2250,
+    "pembersihan": {
+      "duplikat_dihapus": 220,
+      "label_tidak_baku": 900,
+      "label_tidak_dikenal_dibuang": 0,
+      "rms_negatif_diperbaiki": 45,
+      "rpm_nol_dijadikan_kosong": 60,
+      "suhu_kosong": 150,
+      "kurtosis_kosong": 450
+    },
+    "random_state": 42
+  },
+  "suku_cadang": {
+    "normal": "Tidak perlu penggantian. Lanjutkan pemantauan rutin.",
+    "outer_race": "Siapkan bearing pengganti (cincin luar rusak). Periksa juga dudukan housing dan kelurusan.",
+    "inner_race": "Siapkan bearing pengganti (cincin dalam rusak). Periksa kondisi poros dan fit poros-bearing.",
+    "bola": "Siapkan bearing pengganti (bola/elemen gelinding rusak). Periksa pelumasan dan kontaminasi grease."
+  },
+  "lingkungan": {
+    "python": "3.13.18",
+    "scikit-learn": "1.9.1",
+    "pandas": "3.0.5",
+    "numpy": "2.5.3"
+  }
+}
