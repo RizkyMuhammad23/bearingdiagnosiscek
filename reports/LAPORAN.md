@@ -124,13 +124,15 @@ akurasi 0,905, sedangkan 15,2% sisanya hanya benar 51,6% dan memang perlu diliha
 
 Model disimpan sebagai satu *pipeline* scikit-learn (`artifacts/model.joblib`) yang berisi langkah fitur,
 imputasi, dan klasifikasi, ditemani `metadata.json` berisi versi, fitur masukan, rentang wajar, ambang, dan
-metrik. Validasi masukan dan prediksi ada di `app/core/predict.py` dan dipakai bersama oleh API FastAPI
-(`POST /predict`, `GET /health`, `GET /metadata`) dan aplikasi Streamlit, jadi keduanya selalu memberi hasil
-yang sama. Aplikasi Streamlit memuat model langsung, atau memanggil API jika `API_URL` diisi. Selain formulir
-satu rekaman, aplikasi menerima unggahan CSV berisi ribuan rekaman, karena itulah keluhan utama klien.
+metrik. Validasi masukan dan prediksi ada di `app/core/predict.py`, dipakai oleh API FastAPI (`POST /predict`,
+`GET /health`, `GET /metadata`). Aplikasi Streamlit (BearingCek) memuat `model.joblib` saat menyala lalu
+mengirim pohon-pohon modelnya ke halaman, sehingga diagnosis muncul seketika di browser. Aturan validasi dan
+prediksinya sama dengan `predict.py`; tes otomatis membandingkan keduanya pada ratusan rekaman, termasuk
+masukan aneh. Selain formulir satu rekaman, aplikasi menerima unggahan CSV berisi ribuan rekaman, karena itulah
+keluhan utama klien.
 
 <div class="dua">
-<figure><img src="figures/app_02_crop.png"><figcaption>Gambar 6. Masukan tidak wajar (rpm 0, RMS negatif, suhu kosong, beban 9 kN): tetap diprediksi, diberi catatan, dan ditandai perlu dicek analis.</figcaption></figure>
+<figure><img src="figures/app_02_crop.png"><figcaption>Gambar 6. Masukan tidak wajar (rpm 0, RMS negatif, suhu kosong, beban 9 kN): tetap diprediksi, kartu kondisi berubah kuning (perlu dicek analis), dan setiap perbaikan dicatat.</figcaption></figure>
 <div>
 
 Penanganan masukan tidak wajar dibagi dua.
@@ -139,7 +141,7 @@ Masukan yang mustahil ditolak dengan alasan yang jelas, tanpa prediksi: kolom wa
 angka, nilai tak hingga, energi negatif, puncak lebih kecil dari RMS, RMS nol, atau posisi sensor tidak
 dikenal. API mengembalikan kode 422 beserta daftar alasannya.
 
-<img src="figures/app_03_crop.png">
+<img src="figures/app_03_crop.png" style="width:55%;display:block;margin:4px auto;border:1px solid #ddd;border-radius:6px">
 
 Masukan yang aneh tetapi masih bisa diproses tetap diprediksi dengan catatan (Gambar 6). RMS negatif diambil
 nilai mutlaknya, rpm 0 dan kolom opsional yang kosong diisi median, *crest factor* kosong dihitung dari puncak

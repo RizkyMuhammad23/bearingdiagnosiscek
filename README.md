@@ -76,8 +76,10 @@ curl -X POST http://127.0.0.1:8000/predict -H "content-type: application/json" -
   "energi_bpfo": 0.2455, "energi_bpfi": 0.1137, "energi_bsf": 0.0341, "frekuensi_dominan_hz": 41.2}'
 ```
 
-Secara bawaan aplikasi Streamlit memuat model langsung. Jika `API_URL` diisi (variabel lingkungan atau
-*secret* Streamlit), aplikasi mengirim masukan ke API tersebut. Panduan deploy ada di [DEPLOY.md](DEPLOY.md).
+Aplikasi Streamlit menampilkan antarmuka BearingCek (`app/ui/web/`). Saat menyala, aplikasi memuat
+`artifacts/model.joblib`, mengekspor pohon-pohon model ke halaman (`app/core/export_web.py`), lalu halaman
+menghitung prediksi di browser dengan aturan yang sama seperti `app/core/predict.py`. Kesamaan hasil keduanya
+diuji di `tests/test_web_parity.py` (butuh Node.js). Panduan deploy ada di [DEPLOY.md](DEPLOY.md).
 
 ## Struktur repositori
 
@@ -88,7 +90,7 @@ src/features.py pembersihan dan pembuatan fitur, dipakai saat pelatihan dan saat
 artifacts/      model.joblib + metadata.json
 app/core/       validasi masukan dan prediksi, dipakai bersama oleh API dan aplikasi
 app/api/        API (FastAPI)
-app/ui/         antarmuka (Streamlit)
+app/ui/         antarmuka: streamlit_app.py + halaman BearingCek di app/ui/web/
 reports/        grafik, tangkapan layar aplikasi, laporan
 tests/          tes validasi masukan dan prediksi
 docs/           brief kasus dan naskah video

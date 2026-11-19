@@ -43,15 +43,8 @@ periksa versi Python dan pastikan `requirements.txt` ada di akar repositori.
    command* `uvicorn app.api.main:app --host 0.0.0.0 --port $PORT`.
 2. Tambahkan variabel lingkungan `PYTHON_VERSION` = `3.13.0` agar versi Python sama dengan saat pelatihan.
 3. Setelah aktif, cek `https://<nama-api>.onrender.com/health` dan `https://<nama-api>.onrender.com/docs`.
-4. Agar aplikasi Streamlit memanggil API ini, buka pengaturan aplikasi di Streamlit Cloud → **Secrets**, lalu
-   isi:
-
-   ```toml
-   API_URL = "https://<nama-api>.onrender.com"
-   ```
-
-   Sidebar aplikasi akan menampilkan "Mode: memanggil API di ...". Tanpa *secret* ini aplikasi tetap
-   berjalan dengan model lokal.
+4. API ini berdiri sendiri untuk sistem lain (misalnya integrasi dengan sistem getaran klien). Aplikasi
+   Streamlit tidak membutuhkannya dan tetap berjalan tanpa API.
 
 Layanan gratis Render tertidur setelah tidak dipakai beberapa saat, sehingga permintaan pertama bisa lambat
 hingga sekitar satu menit. Bangunkan API sebelum merekam video demo.

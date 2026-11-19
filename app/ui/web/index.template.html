@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnosis Bearing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Bingkai putih membulat berisi sidebar + area kerja; kartu-kartu dashboard di grid 4 kolom. */
+:root {
+  --page: #e6e9e7;
+  --frame: #ffffff;
+  --surface: #f5f6f5;
+  --card: #ffffff;
+  --ink: #17201b;
+  --muted: #8a938e;
+  --line: #e7ebe8;
+  --g900: #0e3b22;
+  --g700: #17603a;
+  --g500: #2f8a55;
+  --g300: #79c495;
+  --g100: #e5f3ea;
+  --amber: #b07a12; --amber-bg: #fbf0d8;
+  --red: #c2413a; --red-bg: #fbe4e2;
+  --font: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --r-lg: 22px; --r-md: 16px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; padding: 22px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--g500); outline-offset: 2px; }
+
+.frame { background: var(--frame); border-radius: 30px; padding: 14px; display: grid; grid-template-columns: 236px 1fr; gap: 14px; max-width: 1360px; margin: 0 auto; box-shadow: 0 20px 50px -30px rgba(14,59,34,.35); }
+
+/* Sidebar */
+.side { background: var(--surface); border-radius: var(--r-lg); padding: 24px 0 18px; display: flex; flex-direction: column; min-height: calc(100vh - 72px); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 24px 26px; font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+.brand-mark { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--g700); display: grid; place-items: center; }
+.brand-mark i { width: 12px; height: 12px; border-radius: 50%; background: var(--g700); box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--g700); transform: scale(.7); }
+.side h6 { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin: 0 24px 8px; }
+.nav { display: flex; flex-direction: column; gap: 2px; margin-bottom: 22px; }
+.nav button { display: flex; align-items: center; gap: 12px; background: none; border: 0; padding: 10px 24px; text-align: left; color: var(--muted); cursor: pointer; position: relative; font-weight: 500; }
+.nav button svg { width: 18px; height: 18px; flex: none; }
+.nav button:hover { color: var(--ink); }
+.nav button[aria-current="page"] { color: var(--ink); font-weight: 700; }
+.nav button[aria-current="page"] svg { color: var(--g700); }
+.nav button[aria-current="page"]::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 4px; border-radius: 0 4px 4px 0; background: var(--g700); }
+.nav .badge { margin-left: auto; background: var(--g900); color: #fff; font-size: 10.5px; font-weight: 600; border-radius: 6px; padding: 1px 6px; font-family: var(--mono); }
+.promo { margin: auto 14px 0; border-radius: var(--r-md); padding: 18px 16px 16px; color: #fff; position: relative; overflow: hidden; background: #0b1f14; }
+.promo::before, .dark::before { content: ""; position: absolute; inset: 0; background:
+    repeating-radial-gradient(circle at 110% 120%, transparent 0 9px, rgba(121,196,149,.22) 9px 10px, transparent 10px 18px),
+    radial-gradient(circle at 100% 100%, rgba(47,138,85,.75), transparent 65%); pointer-events: none; }
+.promo > *, .dark > * { position: relative; }
+.promo .ico { width: 26px; height: 26px; border-radius: 50%; background: #fff; display: grid; place-items: center; color: var(--g900); margin-bottom: 12px; }
+.promo strong { display: block; font-size: 16px; line-height: 1.25; }
+.promo p { margin: 4px 0 14px; font-size: 11.5px; color: rgba(255,255,255,.7); }
+.promo button { width: 100%; border: 0; border-radius: 999px; background: var(--g700); color: #fff; padding: 9px; font-weight: 600; cursor: pointer; }
+.promo button:hover { background: var(--g500); }
+
+/* Main */
+.main { background: var(--surface); border-radius: var(--r-lg); padding: 14px 22px 24px; min-width: 0; }
+.top { display: flex; align-items: center; gap: 12px; margin: 0 -8px 18px; }
+.crumb { flex: 1; background: var(--card); border-radius: 999px; padding: 10px 18px; color: var(--muted); display: flex; align-items: center; gap: 10px; min-width: 0; }
+.crumb svg { width: 16px; height: 16px; flex: none; }
+.crumb b { color: var(--ink); font-weight: 600; }
+.crumb > span:not(.kbd) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crumb .kbd { margin-left: auto; font-family: var(--mono); font-size: 11px; background: var(--surface); border-radius: 6px; padding: 2px 8px; white-space: nowrap; }
+.icon-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: 0; display: grid; place-items: center; cursor: pointer; flex: none; }
+.icon-btn svg { width: 18px; height: 18px; }
+.who { display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: 999px; padding: 5px 16px 5px 5px; }
+.who .av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--g300), var(--g700)); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 12px; }
+.who b { display: block; font-size: 13px; } .who span { font-size: 11.5px; color: var(--muted); }
+
+.head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.head h1 { font-size: 34px; margin: 0; letter-spacing: -.025em; font-weight: 700; line-height: 1.1; text-wrap: balance; }
+.head p { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.pill { border-radius: 999px; padding: 11px 20px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--g900); background: var(--card); color: var(--g900); }
+.pill.solid { background: linear-gradient(180deg, var(--g700), var(--g900)); color: #fff; border-color: transparent; }
+.pill:hover { filter: brightness(1.06); }
+.pill.sm { padding: 5px 12px; font-size: 12.5px; border-width: 1.2px; }
+
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.card { background: var(--card); border-radius: var(--r-md); padding: 18px; min-width: 0; }
+.card-head h3 { white-space: nowrap; }
+.card h3 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.span2 { grid-column: span 2; } .span3 { grid-column: span 3; } .span4 { grid-column: span 4; }
+.rows2 { grid-row: span 2; }
+
+/* Stat cards */
+.stat { display: flex; flex-direction: column; gap: 6px; min-height: 150px; }
+.stat .card-head { margin-bottom: 4px; }
+.stat h3 { font-size: 15px; font-weight: 600; }
+.arrow { width: 30px; height: 30px; border-radius: 50%; border: 1.3px solid var(--ink); background: transparent; display: grid; place-items: center; cursor: pointer; flex: none; }
+.arrow svg { width: 14px; height: 14px; }
+.stat .val { font-size: 44px; font-weight: 600; letter-spacing: -.03em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.stat .val.word { font-size: 30px; letter-spacing: -.02em; }
+.stat .sub { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--g500); margin-top: auto; }
+.stat .sub i { width: 16px; height: 12px; border: 1.2px solid currentColor; border-radius: 3px; display: inline-grid; place-items: center; font-style: normal; font-size: 8px; line-height: 1; }
+.stat.feature { background: linear-gradient(150deg, var(--g500) -10%, var(--g700) 45%, var(--g900) 100%); color: #fff; }
+.stat.feature .arrow { background: #fff; border-color: #fff; color: var(--g900); }
+.stat.feature .sub { color: var(--g300); }
+.stat.feature.warn { background: linear-gradient(150deg, #c9922a -10%, #8a5b07 60%, #5c3b02 100%); }
+.stat.feature.warn .sub { color: #f6d79a; }
+.stat.feature.bad { background: linear-gradient(150deg, #d9564e -10%, #9b2a24 60%, #6a1612 100%); }
+.stat.feature.bad .sub { color: #ffc9c4; }
+.stat.feature.idle { background: linear-gradient(150deg, #8a938e, #4b524e); }
+
+/* Capsule chart */
+.capsules { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 14px; align-items: end; height: 190px; padding: 26px 6px 0; }
+.cap { display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: flex-end; }
+.cap .body { width: min(64px, 100%); border-radius: 999px; position: relative; min-height: 26px;
+  background: repeating-linear-gradient(-45deg, #fff 0 4px, #c9d2cc 4px 5.5px); border: 1.4px solid #c9d2cc; }
+.cap .body.s1 { background: linear-gradient(180deg, var(--g700), var(--g900)); border-color: transparent; }
+.cap .body.s2 { background: var(--g500); border-color: transparent; }
+.cap .body.s3 { background: var(--g300); border-color: transparent; }
+.cap .tip { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); background: var(--card); border: 1px solid var(--line); border-radius: 7px; font-size: 11px; padding: 1px 6px; white-space: nowrap; font-family: var(--mono); box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+.cap .lbl { font-size: 12px; color: var(--muted); text-align: center; white-space: nowrap; }
+@media (prefers-reduced-motion: no-preference) { .cap .body { transition: height .45s cubic-bezier(.3,.8,.3,1); } .gauge-val { transition: stroke-dasharray .5s ease; } }
+
+/* Spare-part card */
+.part h4 { font-size: 22px; line-height: 1.2; margin: 6px 0 4px; letter-spacing: -.015em; color: var(--g900); font-weight: 700; }
+.part .time { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
+.part .pill { width: 100%; justify-content: center; }
+
+/* Sample list */
+.list { display: flex; flex-direction: column; gap: 4px; }
+.list button { display: flex; gap: 12px; align-items: center; text-align: left; background: none; border: 0; padding: 8px; border-radius: 12px; cursor: pointer; }
+.list button:hover { background: var(--surface); }
+.list button.on { background: var(--g100); }
+.list .dot { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; flex: none; }
+.list .dot svg { width: 16px; height: 16px; }
+.list b { display: block; font-size: 13.5px; font-weight: 600; }
+.list span { font-size: 11px; color: var(--muted); }
+
+/* Form */
+.fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 12px; }
+.f label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f label .u { color: var(--muted); font-weight: 400; }
+.f label .req { color: var(--g500); }
+.f input, .f select { width: 100%; font-family: var(--mono); font-size: 13px; padding: 8px 11px; border-radius: 10px; border: 1.3px solid var(--line); background: var(--surface); color: var(--ink); }
+.f input:focus, .f select:focus { border-color: var(--g500); background: #fff; outline: none; box-shadow: 0 0 0 3px var(--g100); }
+.f .h { font-size: 10.5px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.form-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+.form-foot p { margin: 0; font-size: 11.5px; color: var(--muted); max-width: 46ch; }
+
+/* Gauge */
+.gauge { display: flex; flex-direction: column; align-items: center; }
+.gauge svg { width: 100%; max-width: 250px; height: auto; display: block; }
+.gauge .num { font-size: 38px; font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.legend { display: flex; gap: 14px; justify-content: center; font-size: 11.5px; color: var(--muted); flex-wrap: wrap; margin-top: 6px; }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+
+/* Notes */
+.notes { display: flex; flex-direction: column; gap: 8px; }
+.note-row { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; font-size: 12.5px; }
+.chip { display: inline-block; border-radius: 6px; font-size: 10.5px; font-weight: 600; padding: 2px 7px; white-space: nowrap; flex: none; }
+.chip.ok { background: var(--g100); color: var(--g700); }
+.chip.warn { background: var(--amber-bg); color: var(--amber); }
+.chip.bad { background: var(--red-bg); color: var(--red); }
+.empty { color: var(--muted); font-size: 12.5px; }
+
+/* Dark card */
+.dark { background: #0b1f14; color: #fff; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.dark h3 { color: #fff; }
+.dark .big { font-size: 40px; font-family: var(--mono); font-weight: 500; letter-spacing: -.02em; margin: 6px 0 2px; }
+.dark p { margin: 0; color: rgba(255,255,255,.7); font-size: 12.5px; }
+.dark .ctrl { display: flex; gap: 10px; margin-top: auto; padding-top: 16px; }
+.dark .ctrl button { border-radius: 999px; border: 0; padding: 9px 16px; font-weight: 600; cursor: pointer; background: #fff; color: var(--g900); }
+.dark .ctrl button.alt { background: transparent; color: #fff; border: 1.3px solid rgba(255,255,255,.5); }
+
+/* Tables */
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--muted); font-weight: 500; font-size: 11.5px; }
+tr:last-child td { border-bottom: 0; }
+.prose { color: #46514b; max-width: 70ch; }
+.prose p { margin: 0 0 10px; }
+.drop { border: 1.6px dashed #c9d2cc; border-radius: var(--r-md); padding: 22px; text-align: center; color: var(--muted); }
+.drop label { display: inline-flex; margin-top: 10px; }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.cols { font-family: var(--mono); font-size: 11.5px; background: var(--surface); border-radius: 10px; padding: 10px 12px; overflow-x: auto; white-space: nowrap; color: #46514b; }
+img.fig { max-width: 100%; border-radius: 12px; display: block; }
+code { font-family: var(--mono); font-size: .88em; }
+.view[hidden] { display: none; }
+
+@media (max-width: 1180px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .span3, .span4 { grid-column: span 2; }
+  .rows2 { grid-row: auto; }
+}
+@media (max-width: 860px) {
+  body { padding: 8px; }
+  .frame { grid-template-columns: minmax(0, 1fr); border-radius: 22px; padding: 8px; }
+  .side, .main { min-width: 0; }
+  .side { min-height: 0; padding: 14px 0 10px; }
+  .brand { padding-bottom: 12px; }
+  .side h6, .promo { display: none; }
+  .nav { flex-direction: row; overflow-x: auto; margin: 0 10px; }
+  .nav button { padding: 8px 12px; white-space: nowrap; }
+  .nav button[aria-current="page"]::before { left: 12px; right: 12px; top: auto; bottom: 0; width: auto; height: 3px; border-radius: 3px; }
+  .main { padding: 12px; }
+  .top { margin: 0 0 14px; } .who div { display: none; } .who { padding: 4px; }
+  .crumb .kbd { display: none; }
+  .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .grid { grid-template-columns: 1fr; }
+  .span2, .span3, .span4 { grid-column: auto; }
+  .head h1 { font-size: 28px; }
+  .fields { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" fill="#ffffff"/><rect width="1.6" height="6" fill="#c9d2cc"/>
+    </pattern>
+    <linearGradient id="gGreen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#17603a"/><stop offset="1" stop-color="#0e3b22"/></linearGradient>
+  </defs>
+  <symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></g></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></g></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></g></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></g></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 12h3l2-6 3 12 3-9 2 5 2-2h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-ring" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/></g></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3 2.5 20h19z" stroke-linejoin="round"/><path d="M12 10v4M12 17v.01"/></g></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></g></symbol>
+  <symbol id="i-ball" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="7" r="1.6" fill="currentColor"/><circle cx="16.5" cy="13.5" r="1.6" fill="currentColor"/><circle cx="7.5" cy="13.5" r="1.6" fill="currentColor"/></g></symbol>
+  <symbol id="i-q" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4M12 17v.01"/></g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></g></symbol>
+</svg>
+
+<div class="frame">
+  <aside class="side">
+    <div class="brand"><span class="brand-mark"><i></i></span>BearingCek</div>
+    <h6>Menu</h6>
+    <nav class="nav" id="nav">
+      <button data-view="satu" aria-current="page"><svg><use href="#i-grid"/></svg>Diagnosis</button>
+      <button data-view="csv"><svg><use href="#i-upload"/></svg>Banyak rekaman<span class="badge">CSV</span></button>
+      <button data-view="model"><svg><use href="#i-chart"/></svg>Cara kerja model</button>
+    </nav>
+    <div class="promo">
+      <span class="ico"><svg width="14" height="14"><use href="#i-doc"/></svg></span>
+      <strong>Rekaman ribuan sekaligus</strong>
+      <p>Unggah ekspor CSV dari sistem getaran, model memeriksa semuanya.</p>
+      <button type="button" data-goto="csv">Unggah CSV</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="crumb"><svg><use href="#i-wave"/></svg><span>Diagnosis bearing / <b id="crumb">Satu rekaman</b></span><span class="kbd" id="mver">model v1.0.0</span></div>
+      <div class="who"><span class="av">K04</span><div><b>Tim [nama tim]</b><span>Kasus 04 · ML MKB UPI</span></div></div>
+    </div>
+
+    <!-- ============ VIEW: satu rekaman ============ -->
+    <section class="view" id="view-satu">
+      <div class="head">
+        <div><h1>Diagnosis</h1><p>Masukkan ringkasan satu rekaman getaran, lalu lihat kondisi bearing dan suku cadang yang perlu disiapkan.</p></div>
+        <div class="actions">
+          <button class="pill solid" type="button" id="btn-new"><svg width="16" height="16"><use href="#i-plus"/></svg>Rekaman baru</button>
+          <button class="pill" type="button" data-goto="csv">Unggah CSV</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card stat feature" id="st-kondisi">
+          <div class="card-head"><h3>Kondisi bearing</h3><button class="arrow" data-goto="model" aria-label="Lihat cara kerja model"><svg><use href="#i-arrow"/></svg></button></div>
+          <div class="val word" id="st-kondisi-v">…</div>
+          <div class="sub" id="st-kondisi-s"></div>
+        </div>
+        <div class="card stat">
+          <div class="card-head"><h3>Keyakinan model</h3><button class="arrow" data-scroll="card-gauge" aria-label="Lihat ambang keyakinan"><svg><use href="#i-arrow"/></svg></button></div>
+          <div class="val" id="st-yakin">…</div>
+          <div class="sub" id="st-yakin-s"></div>
+        </div>
+        <div class="card stat">
+          <div class="card-head"><h3>Orde frekuensi</h3><button class="arrow" data-goto="model" aria-label="Penjelasan orde frekuensi"><svg><use href="#i-arrow"/></svg></button></div>
+          <div class="val" id="st-orde">…</div>
+          <div class="sub" id="st-orde-s"><i>Hz</i>frekuensi dominan ÷ putaran poros</div>
+        </div>
+        <div class="card stat">
+          <div class="card-head"><h3>Catatan masukan</h3><button class="arrow" data-scroll="card-notes" aria-label="Lihat catatan masukan"><svg><use href="#i-arrow"/></svg></button></div>
+          <div class="val" id="st-notes">…</div>
+          <div class="sub" id="st-notes-s"></div>
+        </div>
+
+        <div class="card span2">
+          <div class="card-head"><h3>Probabilitas per kelas</h3><span class="chip ok" id="prob-chip">argmax</span></div>
+          <div class="capsules" id="caps"></div>
+        </div>
+        <div class="card part">
+          <h3>Suku cadang</h3>
+          <h4 id="part-t">…</h4>
+          <p class="time" id="part-s"></p>
+          <button class="pill solid" type="button" id="btn-copy"><svg width="15" height="15"><use href="#i-doc"/></svg><span id="btn-copy-t">Salin ringkasan</span></button>
+        </div>
+        <div class="card rows2">
+          <div class="card-head"><h3>Contoh rekaman</h3><button class="pill sm" type="button" id="btn-clear"><svg width="12" height="12"><use href="#i-plus"/></svg>Baru</button></div>
+          <div class="list" id="samples"></div>
+        </div>
+
+        <form class="card span2 rows2" id="form" novalidate>
+          <div class="card-head"><h3>Masukan rekaman</h3><span class="chip ok">1 detik getaran</span></div>
+          <div class="fields" id="fields"></div>
+          <div class="form-foot">
+            <p>Tanda <span style="color:var(--g500)">*</span> wajib diisi. Kolom lain boleh kosong dan diisi median data latih. Teks, angka negatif, atau nilai mustahil diperiksa saat diagnosis.</p>
+            <button class="pill solid" type="submit">Jalankan diagnosis</button>
+          </div>
+        </form>
+        <div class="card gauge" id="card-gauge">
+          <div class="card-head" style="align-self:stretch"><h3>Ambang keyakinan</h3></div>
+          <svg viewBox="0 0 240 140" aria-label="Keyakinan dibandingkan ambang">
+            <path d="M30 125 A90 90 0 0 1 210 125" fill="none" stroke="url(#hatch)" stroke-width="30" stroke-linecap="round"/>
+            <path class="gauge-val" id="g-val" d="M30 125 A90 90 0 0 1 210 125" fill="none" stroke="url(#gGreen)" stroke-width="30" stroke-linecap="round" stroke-dasharray="0 400"/>
+            <line id="g-thr" x1="0" y1="0" x2="0" y2="0" stroke="#17201b" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <div class="num" id="g-num" style="margin-top:-46px">…</div>
+          <div class="empty" id="g-sub">keyakinan</div>
+          <div class="legend"><span><i style="background:var(--g700)"></i>Keyakinan</span><span><i style="background:var(--ink);border-radius:2px;width:3px"></i>Ambang 65%</span><span><i style="background:repeating-linear-gradient(-45deg,#fff 0 2px,#c9d2cc 2px 3px);border:1px solid #c9d2cc"></i>Sisa</span></div>
+        </div>
+        <div class="card dark">
+          <h3>Model final</h3>
+          <div class="big" id="dk-f1">0,799</div>
+          <p id="dk-sub">macro F1 data test · baseline 0,747</p>
+          <div class="ctrl"><button type="button" data-goto="model">Lihat evaluasi</button></div>
+        </div>
+        <div class="card" id="card-notes">
+          <div class="card-head"><h3>Catatan</h3></div>
+          <div class="notes" id="notes"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: CSV ============ -->
+    <section class="view" id="view-csv" hidden>
+      <div class="head">
+        <div><h1>Banyak rekaman</h1><p>Unggah CSV dengan kolom yang sama seperti data klien. Kolom <code>id_rekaman</code> dan <code>kondisi</code> boleh ada dan dibiarkan apa adanya.</p></div>
+      </div>
+      <div class="grid">
+        <div class="card stat feature idle" id="cs-ok-card"><div class="card-head"><h3>Diproses</h3></div><div class="val" id="cs-ok">0</div><div class="sub" id="cs-total">belum ada berkas</div></div>
+        <div class="card stat"><div class="card-head"><h3>Ditolak</h3></div><div class="val" id="cs-bad">0</div><div class="sub" style="color:var(--red)">masukan mustahil atau kosong</div></div>
+        <div class="card stat"><div class="card-head"><h3>Perlu dicek analis</h3></div><div class="val" id="cs-cek">0</div><div class="sub" style="color:var(--amber)">keyakinan &lt; 65% atau masukan aneh</div></div>
+        <div class="card stat"><div class="card-head"><h3>Rusak terdeteksi</h3></div><div class="val" id="cs-rusak">0</div><div class="sub">cincin luar, cincin dalam, atau bola</div></div>
+
+        <div class="card span2">
+          <div class="card-head"><h3>Unggah berkas</h3></div>
+          <div class="drop" id="drop">
+            Jatuhkan berkas CSV di sini, atau<br>
+            <label class="pill solid" for="csv-file"><svg width="15" height="15"><use href="#i-upload"/></svg>Pilih berkas CSV</label>
+            <input type="file" id="csv-file" accept=".csv,text/csv">
+          </div>
+          <p class="empty" style="margin:12px 0 6px">Kolom wajib:</p>
+          <div class="cols">posisi_sensor,kecepatan_rpm,beban_kN,suhu_housing_C,rms_g,puncak_g,kurtosis,crest_factor,energi_bpfo,energi_bpfi,energi_bsf,frekuensi_dominan_hz</div>
+          <p class="empty" id="csv-msg" style="margin-top:10px"></p>
+        </div>
+        <div class="card span2">
+          <div class="card-head"><h3>Sebaran kondisi</h3><button class="pill sm" type="button" id="btn-copy-csv" disabled>Salin hasil (CSV)</button></div>
+          <div class="capsules" id="cs-caps"></div>
+        </div>
+        <div class="card span4">
+          <div class="card-head"><h3>Hasil per rekaman</h3><span class="empty" id="cs-note"></span></div>
+          <div class="tbl" id="cs-table"><p class="empty">Hasil muncul di sini setelah berkas diunggah.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: model ============ -->
+    <section class="view" id="view-model" hidden>
+      <div class="head">
+        <div><h1>Cara kerja model</h1><p>HistGradientBoosting dengan fitur turunan, dilatih pada 15.000 rekaman berlabel dan diuji sekali pada data test.</p></div>
+      </div>
+      <div class="grid">
+        <div class="card stat feature"><div class="card-head"><h3>Macro F1 test</h3></div><div class="val" id="m-f1">0,799</div><div class="sub"><i>↑</i><span id="m-delta">+0,052 dari baseline</span></div></div>
+        <div class="card stat"><div class="card-head"><h3>Baseline</h3></div><div class="val" id="m-base">0,747</div><div class="sub" style="color:var(--muted)">regresi logistik, fitur asli</div></div>
+        <div class="card stat"><div class="card-head"><h3>Akurasi test</h3></div><div class="val" id="m-acc">0,846</div><div class="sub" style="color:var(--muted)">2.250 rekaman test</div></div>
+        <div class="card stat"><div class="card-head"><h3>Ambang keyakinan</h3></div><div class="val" id="m-amb">0,65</div><div class="sub" style="color:var(--muted)">akurasi ≥ 90% di atas ambang</div></div>
+
+        <div class="card span2">
+          <div class="card-head"><h3>F1 per kelas (test)</h3></div>
+          <div class="capsules" id="m-caps"></div>
+        </div>
+        <div class="card span2">
+          <div class="card-head"><h3>Perbandingan model</h3></div>
+          <div class="tbl"><table>
+            <thead><tr><th>Model</th><th>F1 validation</th><th>F1 test</th></tr></thead>
+            <tbody>
+              <tr><td>Baseline: regresi logistik</td><td>0,725</td><td>0,747</td></tr>
+              <tr><td>Regresi logistik + fitur turunan</td><td>0,731</td><td>·</td></tr>
+              <tr><td>HGB + fitur turunan, class_weight</td><td>0,787</td><td>·</td></tr>
+              <tr><td>HGB, fitur asli</td><td>0,800</td><td>·</td></tr>
+              <tr><td>Random forest + fitur turunan</td><td>0,806</td><td>·</td></tr>
+              <tr><td><b>HGB + fitur turunan (final)</b></td><td><b>0,820</b></td><td><b>0,799</b></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="card span2 prose">
+          <div class="card-head"><h3>Yang dibaca model</h3></div>
+          <p>Fitur terpenting adalah orde frekuensi: frekuensi dominan dibagi frekuensi putar poros (rpm/60). Kerusakan cincin luar muncul di sekitar 3,6× putaran, cincin dalam di sekitar 5,4×, dan bola di sekitar 2,3×. Rekaman normal berkumpul di 1× dan 2×.</p>
+          <p>Kesalahan terbanyak adalah bearing rusak yang ditebak normal, terutama ketika frekuensi dominannya masih di 1× atau 2× putaran. Karena itu hasil dengan keyakinan di bawah 65% ditandai perlu dicek analis.</p>
+          <p>Saat aplikasi menyala, server memuat <code>artifacts/model.joblib</code> lalu mengirim pohon-pohon keputusannya ke halaman ini, sehingga diagnosis langsung muncul tanpa menunggu server. Hasilnya identik dengan <code>app/core/predict.py</code> dan API (diuji pada 3.719 rekaman).</p>
+        </div>
+        <div class="card span2">
+          <div class="card-head"><h3>Confusion matrix (test)</h3></div>
+          <img class="fig" alt="Confusion matrix data test: baseline di kiri, model final di kanan" src="__CM__">
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>__MODELJS__</script>
+<script>window.__BEARING_MODEL__ = __MODEL_JSON__;</script>
+<script>
+const B = window.BearingModel;
+const CONTOH = __CONTOH__;
+const $ = (s) => document.getElementById(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = (x) => Math.round(x * 100) + "%";
+const dec = (x, d = 3) => x.toFixed(d).replace(".", ",");
+let MODEL = null, LAST = null;
+
+const FIELDS = {
+  kecepatan_rpm: ["Kecepatan", "rpm"], beban_kN: ["Beban", "kN"], suhu_housing_C: ["Suhu housing", "°C"],
+  rms_g: ["RMS", "g"], puncak_g: ["Puncak", "g"], kurtosis: ["Kurtosis", ""], crest_factor: ["Crest factor", ""],
+  energi_bpfo: ["Energi BPFO", ""], energi_bpfi: ["Energi BPFI", ""], energi_bsf: ["Energi BSF", ""], frekuensi_dominan_hz: ["Frek. dominan", "Hz"],
+};
+const SHORT = { normal: "Normal", outer_race: "Cincin luar", inner_race: "Cincin dalam", bola: "Bola" };
+const SAMPLES = [
+  ["normal", "Normal", "#i-check", "#e5f3ea", "#17603a"],
+  ["outer_race", "Cincin luar rusak", "#i-ring", "#e3ecf8", "#2f5f9e"],
+  ["inner_race", "Cincin dalam rusak", "#i-ring", "#efe6f8", "#6a3fa0"],
+  ["bola", "Bola rusak", "#i-ball", "#fdeede", "#b4621a"],
+  ["ragu", "Kasus ragu", "#i-q", "#fbf0d8", "#b07a12"],
+  ["aneh_tapi_diproses", "Masukan tidak wajar", "#i-alert", "#fbf0d8", "#b07a12"],
+  ["mustahil_ditolak", "Masukan mustahil", "#i-x", "#fbe4e2", "#c2413a"],
+];
+
+// ---------- form
+$("fields").innerHTML =
+  `<div class="f"><label for="f-posisi_sensor">Posisi sensor <span class="req">*</span></label>
+     <select id="f-posisi_sensor"><option value="">(kosong)</option><option value="drive_end">drive_end</option><option value="fan_end">fan_end</option></select>
+     <div class="h">drive_end = sisi beban</div></div>` +
+  B.NUM_COLS.map((c) => {
+    const [lab, u] = FIELDS[c], [lo, hi] = B.RENTANG_WAJAR[c], req = B.WAJIB.includes(c);
+    return `<div class="f"><label for="f-${c}" title="${c}">${lab}${u ? ` <span class="u">${u}</span>` : ""}${req ? ' <span class="req">*</span>' : ""}</label>
+      <input type="text" inputmode="decimal" id="f-${c}" autocomplete="off" placeholder="kosong">
+      <div class="h">latih ${lo} sampai ${hi}</div></div>`;
+  }).join("");
+
+$("samples").innerHTML = SAMPLES.map(([k, t, ic, bg, fg]) => {
+  const d = CONTOH[k];
+  const sub = `${d.kecepatan_rpm ? Math.round(d.kecepatan_rpm).toLocaleString("id-ID") + " rpm" : "rpm 0"} · ${String(d.frekuensi_dominan_hz).replace(".", ",")} Hz`;
+  return `<button type="button" data-k="${k}"><span class="dot" style="background:${bg};color:${fg}"><svg><use href="${ic}"/></svg></span><span><b>${t}</b><span>${sub}</span></span></button>`;
+}).join("");
+
+function isi(k) {
+  const d = k ? CONTOH[k] : {};
+  $("f-posisi_sensor").value = d.posisi_sensor || "";
+  for (const c of B.NUM_COLS) $("f-" + c).value = d[c] === null || d[c] === undefined ? "" : String(d[c]);
+  document.querySelectorAll("#samples button").forEach((b) => b.classList.toggle("on", b.dataset.k === k));
+}
+$("samples").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { isi(b.dataset.k); jalankan(); } });
+function kosongkan() { isi(null); tampilKosong(); $("f-posisi_sensor").focus(); }
+$("btn-clear").addEventListener("click", kosongkan);
+$("btn-new").addEventListener("click", kosongkan);
+
+function bacaForm() {
+  const m = { posisi_sensor: $("f-posisi_sensor").value || null };
+  for (const c of B.NUM_COLS) m[c] = $("f-" + c).value;
+  return m;
+}
+
+// ---------- render pieces
+function capsules(el, items, fmt) {
+  const max = Math.max(...items.map((i) => i.v), 1e-9);
+  const order = [...items].sort((a, b) => b.v - a.v).map((i) => i.k);
+  el.innerHTML = items.map((i) => {
+    const rank = order.indexOf(i.k);
+    const cls = i.style || (rank === 0 ? "s1" : rank === 1 && i.v > 0.15 * max ? "s2" : "");
+    const h = Math.max(14, (i.v / (i.scale || max)) * 100);
+    return `<div class="cap"><div class="body ${cls}" style="height:${h}%">${rank === 0 || i.tip ? `<span class="tip">${fmt(i.v)}</span>` : ""}</div><span class="lbl">${esc(i.label)}</span></div>`;
+  }).join("");
+}
+function gauge(v, amb) {
+  const L = Math.PI * 90;
+  $("g-val").setAttribute("stroke-dasharray", `${(L * v).toFixed(1)} 400`);
+  $("g-val").style.opacity = v > 0 ? 1 : 0;
+  const a = Math.PI * (1 - amb), r1 = 72, r2 = 108;
+  const x = (r) => 120 + r * Math.cos(a), y = (r) => 125 - r * Math.sin(a);
+  Object.entries({ x1: x(r1), y1: y(r1), x2: x(r2), y2: y(r2) }).forEach(([k, val]) => $("g-thr").setAttribute(k, val.toFixed(1)));
+}
+function setFeature(state) {
+  const el = $("st-kondisi");
+  el.classList.remove("warn", "bad", "idle");
+  if (state) el.classList.add(state);
+}
+function notes(list) {
+  $("notes").innerHTML = list.length ? list.map(([t, c, s]) => `<div class="note-row"><span class="chip ${c}">${t}</span><span>${esc(s)}</span></div>`).join("")
+    : '<div class="note-row"><span class="chip ok">Bersih</span><span>Semua kolom terisi dan berada di rentang data latih.</span></div>';
+}
+
+function tampilKosong() {
+  LAST = null;
+  setFeature("idle");
+  $("st-kondisi-v").textContent = "Belum ada";
+  $("st-kondisi-s").innerHTML = "isi formulir lalu jalankan diagnosis";
+  $("st-yakin").textContent = "–"; $("st-yakin-s").textContent = "";
+  $("st-orde").textContent = "–"; $("st-notes").textContent = "–"; $("st-notes-s").textContent = "";
+  capsules($("caps"), B.CLASSES.map((k) => ({ k, v: 0.25, label: SHORT[k], style: "x" })), () => "");
+  $("caps").querySelectorAll(".tip").forEach((t) => t.remove());
+  $("part-t").textContent = "Menunggu diagnosis"; $("part-s").textContent = "";
+  gauge(0, MODEL ? MODEL.meta.threshold.ambang_keyakinan : 0.65); $("g-num").textContent = "–"; $("g-sub").textContent = "keyakinan";
+  notes([]); $("notes").innerHTML = '<p class="empty">Catatan tentang masukan muncul setelah diagnosis.</p>';
+}
+
+function orde(m) {
+  const rpm = parseFloat(String(m.kecepatan_rpm).replace(",", ".")), f = parseFloat(String(m.frekuensi_dominan_hz).replace(",", "."));
+  return rpm > 0 && f > 0 ? f / (rpm / 60) : NaN;
+}
+
+function tampil(h, m) {
+  LAST = h;
+  const amb = h.ambang_keyakinan;
+  setFeature(h.perlu_cek_analis ? "warn" : null);
+  $("st-kondisi-v").textContent = SHORT[h.kondisi];
+  $("st-kondisi-s").innerHTML = h.perlu_cek_analis ? "<i>!</i>perlu dicek analis getaran" : `<i>✓</i>${h.kondisi === "normal" ? "lanjutkan pemantauan rutin" : "siapkan bearing pengganti"}`;
+  $("st-yakin").textContent = pct(h.keyakinan);
+  $("st-yakin-s").innerHTML = h.keyakinan >= amb ? `<i>↑</i>di atas ambang ${pct(amb)}` : `<i>↓</i>di bawah ambang ${pct(amb)}`;
+  $("st-yakin-s").style.color = h.keyakinan >= amb ? "" : "var(--amber)";
+  const o = orde(m);
+  $("st-orde").textContent = Number.isNaN(o) ? "–" : o.toFixed(2).replace(".", ",") + "×";
+  $("st-notes").textContent = h.peringatan.length;
+  $("st-notes-s").innerHTML = h.peringatan.length ? '<i>!</i>baca catatan sebelum bertindak' : "<i>✓</i>masukan bersih";
+  $("st-notes-s").style.color = h.peringatan.length ? "var(--amber)" : "";
+  capsules($("caps"), B.CLASSES.map((k) => ({ k, v: h.probabilitas[k], label: SHORT[k], scale: 1 })), pct);
+  $("part-t").textContent = h.kondisi === "normal" ? "Tidak perlu penggantian" : "Bearing pengganti";
+  $("part-s").textContent = h.suku_cadang;
+  gauge(h.keyakinan, amb); $("g-num").textContent = pct(h.keyakinan); $("g-sub").textContent = SHORT[h.kondisi];
+  const n = h.peringatan.map((p) => [p.includes("di luar rentang") ? "Di luar rentang" : p.includes("kosong") ? "Diisi median" : "Diperbaiki", "warn", p]);
+  if (h.perlu_cek_analis && h.keyakinan < amb) n.unshift(["Ragu", "warn", `Keyakinan ${pct(h.keyakinan)} di bawah ambang ${pct(amb)}. Serahkan ke analis getaran.`]);
+  notes(n);
+}
+
+function tolak(alasan) {
+  LAST = null;
+  setFeature("bad");
+  $("st-kondisi-v").textContent = "Ditolak";
+  $("st-kondisi-s").innerHTML = `<i>×</i>${alasan.length} masalah pada masukan`;
+  ["st-yakin", "st-orde"].forEach((i) => { $(i).textContent = "–"; });
+  $("st-yakin-s").textContent = ""; $("st-notes").textContent = alasan.length;
+  $("st-notes-s").innerHTML = "<i>×</i>prediksi tidak dibuat"; $("st-notes-s").style.color = "var(--red)";
+  capsules($("caps"), B.CLASSES.map((k) => ({ k, v: 0.25, label: SHORT[k], style: "x" })), () => "");
+  $("caps").querySelectorAll(".tip").forEach((t) => t.remove());
+  $("part-t").textContent = "Perbaiki masukan dulu"; $("part-s").textContent = "Lihat kartu catatan untuk kolom yang bermasalah.";
+  gauge(0, MODEL.meta.threshold.ambang_keyakinan); $("g-num").textContent = "–"; $("g-sub").textContent = "masukan ditolak";
+  notes(alasan.map((a) => ["Ditolak", "bad", a]));
+}
+
+function jalankan() {
+  if (!MODEL) return;
+  const m = bacaForm();
+  try { tampil(B.prediksi(MODEL, m), m); }
+  catch (e) { tolak(e.pesan || [String(e.message || e)]); }
+}
+$("form").addEventListener("submit", (e) => { e.preventDefault(); jalankan(); });
+
+$("btn-copy").addEventListener("click", async () => {
+  const t = $("btn-copy-t");
+  if (!LAST) { t.textContent = "Belum ada hasil"; setTimeout(() => (t.textContent = "Salin ringkasan"), 1600); return; }
+  const s = `Kondisi bearing: ${LAST.kondisi_label} (keyakinan ${pct(LAST.keyakinan)}${LAST.perlu_cek_analis ? ", perlu dicek analis" : ""})\nSuku cadang: ${LAST.suku_cadang}` +
+    (LAST.peringatan.length ? "\nCatatan: " + LAST.peringatan.join(" | ") : "");
+  try { await navigator.clipboard.writeText(s); t.textContent = "Tersalin"; } catch { t.textContent = "Clipboard ditolak"; }
+  setTimeout(() => (t.textContent = "Salin ringkasan"), 1600);
+});
+
+// ---------- navigation
+const CRUMB = { satu: "Satu rekaman", csv: "Banyak rekaman", model: "Cara kerja model" };
+function buka(v) {
+  document.querySelectorAll("#nav button").forEach((b) => { if (b.dataset.view === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+  document.querySelectorAll(".view").forEach((s) => { s.hidden = s.id !== "view-" + v; });
+  $("crumb").textContent = CRUMB[v];
+  window.scrollTo({ top: 0 });
+}
+$("nav").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) buka(b.dataset.view); });
+document.addEventListener("click", (e) => {
+  const g = e.target.closest("[data-goto]"); if (g) buka(g.dataset.goto);
+  const s = e.target.closest("[data-scroll]"); if (s) $(s.dataset.scroll).scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
+// ---------- CSV
+function parseCSV(text) {
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ",") { row.push(f); f = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(f); rows.push(row); row = []; f = ""; }
+    else f += ch;
+  }
+  if (f !== "" || row.length) { row.push(f); rows.push(row); }
+  return rows.filter((r) => r.some((x) => x.trim() !== ""));
+}
+const cell = (v) => { const s = v === null || v === undefined ? "" : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+let CSV_OUT = "";
+function csvGagal(msg) { $("csv-msg").innerHTML = `<span class="chip bad">Gagal</span> ${esc(msg)}`; }
+function prosesCSV(text) {
+  if (!MODEL) return csvGagal("Model belum selesai dimuat. Coba lagi sebentar.");
+  const rows = parseCSV(text);
+  if (rows.length < 2) return csvGagal("Berkas tidak berisi baris data.");
+  const head = rows[0].map((h) => h.trim().replace(/^﻿/, ""));
+  const kurang = ["posisi_sensor", ...B.NUM_COLS].filter((c) => !head.includes(c));
+  if (kurang.length) return csvGagal("Kolom berikut tidak ada di berkas: " + kurang.join(", "));
+  if (rows.length - 1 > 20000) return csvGagal("Maksimal 20.000 baris per unggahan.");
+  const hasil = rows.slice(1).map((r) => {
+    const m = {}; head.forEach((h, i) => { m[h] = r[i] === undefined ? "" : r[i]; });
+    try { return { m, ok: true, h: B.prediksi(MODEL, m) }; }
+    catch (e) { return { m, ok: false, err: (e.pesan || [String(e.message)]).join(" | ") }; }
+  });
+  const ok = hasil.filter((x) => x.ok), cek = ok.filter((x) => x.h.perlu_cek_analis).length;
+  const hit = Object.fromEntries(B.CLASSES.map((k) => [k, ok.filter((x) => x.h.kondisi === k).length]));
+  $("cs-ok-card").classList.remove("idle");
+  $("cs-ok").textContent = ok.length.toLocaleString("id-ID");
+  $("cs-total").innerHTML = `<i>∑</i>dari ${hasil.length.toLocaleString("id-ID")} baris`;
+  $("cs-bad").textContent = (hasil.length - ok.length).toLocaleString("id-ID");
+  $("cs-cek").textContent = cek.toLocaleString("id-ID");
+  $("cs-rusak").textContent = (ok.length - hit.normal).toLocaleString("id-ID");
+  capsules($("cs-caps"), B.CLASSES.map((k) => ({ k, v: hit[k], label: SHORT[k], tip: true })), (v) => v.toLocaleString("id-ID"));
+  $("csv-msg").innerHTML = `<span class="chip ok">Selesai</span> ${hasil.length.toLocaleString("id-ID")} baris diperiksa.`;
+  const ext = ["status", "kondisi", "keyakinan", "perlu_cek_analis", ...B.CLASSES.map((k) => "p_" + k), "catatan"];
+  CSV_OUT = [head.concat(ext).map(cell).join(",")].concat(hasil.map((x) => head.map((h) => cell(x.m[h])).concat(
+    x.ok ? ["ok", x.h.kondisi, x.h.keyakinan, x.h.perlu_cek_analis, ...B.CLASSES.map((k) => x.h.probabilitas[k]), x.h.peringatan.join(" | ")].map(cell)
+         : ["ditolak", "", "", "", "", "", "", "", x.err].map(cell)).join(","))).join("\n");
+  $("btn-copy-csv").disabled = false;
+  const idc = head.includes("id_rekaman"), kc = head.includes("kondisi");
+  $("cs-table").innerHTML = `<table><thead><tr><th>#</th>${idc ? "<th>id_rekaman</th>" : ""}${kc ? "<th>label asli</th>" : ""}<th>posisi</th><th>Status</th><th>Kondisi</th><th>Keyakinan</th><th>Catatan</th></tr></thead><tbody>` +
+    hasil.slice(0, 300).map((x, i) => `<tr><td>${i + 1}</td>${idc ? `<td>${esc(x.m.id_rekaman)}</td>` : ""}${kc ? `<td>${esc(x.m.kondisi)}</td>` : ""}<td>${esc(x.m.posisi_sensor)}</td>
+      <td>${x.ok ? (x.h.perlu_cek_analis ? '<span class="chip warn">Cek analis</span>' : '<span class="chip ok">OK</span>') : '<span class="chip bad">Ditolak</span>'}</td>
+      <td>${x.ok ? SHORT[x.h.kondisi] : ""}</td><td>${x.ok ? pct(x.h.keyakinan) : ""}</td>
+      <td style="white-space:normal;min-width:240px;color:var(--muted)">${esc(x.ok ? x.h.peringatan.join(" | ") : x.err)}</td></tr>`).join("") + "</tbody></table>";
+  $("cs-note").textContent = hasil.length > 300 ? `300 baris pertama dari ${hasil.length.toLocaleString("id-ID")}` : "";
+}
+$("btn-copy-csv").addEventListener("click", async (e) => {
+  try { await navigator.clipboard.writeText(CSV_OUT); e.target.textContent = "Tersalin"; } catch { e.target.textContent = "Clipboard ditolak"; }
+  setTimeout(() => (e.target.textContent = "Salin hasil (CSV)"), 1800);
+});
+$("csv-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) prosesCSV(await f.text()); });
+$("drop").addEventListener("dragover", (e) => e.preventDefault());
+$("drop").addEventListener("drop", async (e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) prosesCSV(await f.text()); });
+capsules($("cs-caps"), B.CLASSES.map((k) => ({ k, v: 0.25, label: SHORT[k], style: "x" })), () => "");
+$("cs-caps").querySelectorAll(".tip").forEach((t) => t.remove());
+
+// ---------- load model
+isi("outer_race");
+Promise.resolve(window.__BEARING_MODEL__).then((m) => { if (!m) throw new Error("model tidak ditemukan");
+  MODEL = m;
+  const mt = m.meta.metrik, amb = m.meta.threshold.ambang_keyakinan;
+  $("mver").textContent = "model v" + m.meta.versi_model;
+  $("dk-f1").textContent = dec(mt.final.macro_f1_test);
+  $("dk-sub").textContent = `macro F1 data test · baseline ${dec(mt.baseline.macro_f1_test)}`;
+  $("m-f1").textContent = dec(mt.final.macro_f1_test);
+  $("m-delta").textContent = "+" + dec(mt.final.macro_f1_test - mt.baseline.macro_f1_test) + " dari baseline";
+  $("m-base").textContent = dec(mt.baseline.macro_f1_test);
+  $("m-acc").textContent = dec(mt.final.akurasi_test);
+  $("m-amb").textContent = String(amb).replace(".", ",");
+  capsules($("m-caps"), B.CLASSES.map((k) => ({ k, v: mt.final.f1_per_kelas_test[k], label: SHORT[k], scale: 1, tip: true })), (v) => dec(v));
+  jalankan();
+}).catch((e) => { tolak(["Model gagal dimuat (" + e.message + "). Muat ulang halaman."]); });
+tampilKosong();
+</script>
+</body>
+</html>
