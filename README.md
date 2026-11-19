@@ -1,4 +1,4 @@
-# Diagnosis Kerusakan Bearing · Tim [nama tim]
+# Diagnosis Kerusakan Bearing · Tim Bearing
 
 **Kasus:** 04 Diagnosis Kerusakan *Bearing* · **Aplikasi:** [tautan Streamlit] · **API:** [tautan API, opsional] · **Video:** [tautan video]
 
