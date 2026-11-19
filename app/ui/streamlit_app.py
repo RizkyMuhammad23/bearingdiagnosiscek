@@ -9,6 +9,7 @@ dengan app/core/predict.py, yang juga dipakai API FastAPI.
 """
 from __future__ import annotations
 
+import hashlib
 import sys
 from pathlib import Path
 
@@ -39,9 +40,16 @@ st.markdown(
 )
 
 
-@st.cache_resource(show_spinner="Memuat model…")
-def halaman() -> str:
+# Cache halaman, tetapi bangun ulang setiap kali template, skrip, contoh, atau model berubah.
+SUMBER = [ROOT / "app" / "ui" / "web" / "index.template.html", ROOT / "app" / "ui" / "web" / "model.js",
+          ROOT / "app" / "core" / "contoh_masukan.json", ROOT / "artifacts" / "model.joblib",
+          ROOT / "artifacts" / "metadata.json"]
+
+
+@st.cache_resource(show_spinner="Memuat model…", max_entries=1)
+def halaman(versi: str) -> str:
     return build_page()
 
 
-components.html(halaman(), height=1480, scrolling=True)
+versi = hashlib.sha1(b"".join(f.read_bytes() for f in SUMBER)).hexdigest()
+components.html(halaman(versi), height=1480, scrolling=True)
