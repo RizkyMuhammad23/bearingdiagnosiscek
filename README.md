@@ -1,6 +1,6 @@
 # Diagnosis Kerusakan Bearing · Tim Bearing
 
-**Kasus:** 04 Diagnosis Kerusakan *Bearing* · **Aplikasi:** [tautan Streamlit] · **API:** [tautan API, opsional] · **Video:** [tautan video]
+**Kasus:** 04 Diagnosis Kerusakan *Bearing* · **Aplikasi:** https://bearing-diagnosis-mkb.streamlit.app · **API:** [tautan API, opsional] · **Video:** [tautan video] · **Penjelasan kode (Colab):** [notebooks/02_penjelasan_kode_colab.ipynb](https://colab.research.google.com/github/RizkyMuhammad23/bearing-diagnosis/blob/main/notebooks/02_penjelasan_kode_colab.ipynb)
 
 | Anggota | NIM | Bagian yang dikerjakan |
 |---|---|---|
