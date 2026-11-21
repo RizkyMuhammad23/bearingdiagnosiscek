@@ -4,8 +4,8 @@ Jalankan dari akar repositori:
     streamlit run app/ui/streamlit_app.py
 
 Saat menyala, aplikasi memuat artifacts/model.joblib dan metadata.json, lalu menampilkan antarmuka
-BearingCek (app/ui/web). Validasi masukan dan prediksi di antarmuka itu mengikuti aturan yang sama
-dengan app/core/predict.py, yang juga dipakai API FastAPI.
+BearingCek (app/ui/bearingcek.html). Validasi masukan dan prediksi di antarmuka itu mengikuti aturan yang sama
+dengan src/predict.py, yang juga dipakai API FastAPI.
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app.core.export_web import build_page  # noqa: E402
+from src.tampilan import build_page  # noqa: E402
 
 st.set_page_config(page_title="BearingCek · Diagnosis Bearing", page_icon="⚙️", layout="wide",
                    initial_sidebar_state="collapsed")
@@ -41,8 +41,8 @@ st.markdown(
 
 
 # Cache halaman, tetapi bangun ulang setiap kali template, skrip, contoh, atau model berubah.
-SUMBER = [ROOT / "app" / "ui" / "web" / "index.template.html", ROOT / "app" / "ui" / "web" / "model.js",
-          ROOT / "app" / "core" / "contoh_masukan.json", ROOT / "artifacts" / "model.joblib",
+SUMBER = [ROOT / "app" / "ui" / "bearingcek.html", ROOT / "app" / "ui" / "bearingcek.js",
+          ROOT / "data" / "contoh_masukan.json", ROOT / "artifacts" / "model.joblib",
           ROOT / "artifacts" / "metadata.json"]
 
 

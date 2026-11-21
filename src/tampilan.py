@@ -1,9 +1,9 @@
-"""Bangun halaman BearingCek (app/ui/web) dari model yang dimuat dari artifacts/.
+"""Komponen tampilan: bangun halaman BearingCek (app/ui/bearingcek.html) dari model di artifacts/.
 
 Model HistGradientBoosting di dalam pipeline dibaca dari model.joblib, lalu pohon-pohonnya,
 median imputer, dan urutan fiturnya diekspor ke JSON. Halaman memakai JSON itu untuk menghitung
-prediksi di browser dengan aturan yang sama persis seperti app/core/predict.py
-(lihat app/ui/web/model.js; kesamaan hasil diuji di tests/test_web_parity.py).
+prediksi di browser dengan aturan yang sama persis seperti src/predict.py
+(lihat app/ui/bearingcek.js; kesamaan hasil diuji di tests/test_web_parity.py).
 """
 from __future__ import annotations
 
@@ -11,9 +11,9 @@ import base64
 import json
 from pathlib import Path
 
-from app.core.predict import ROOT, load_metadata, load_model
+from src.predict import ROOT, load_metadata, load_model
 
-WEB = ROOT / "app" / "ui" / "web"
+UI = ROOT / "app" / "ui"
 
 
 def export_model(model=None, meta=None) -> dict:
@@ -30,7 +30,7 @@ def export_model(model=None, meta=None) -> dict:
         for pohon in iterasi:
             n = pohon.nodes
             if n["is_categorical"].any():
-                raise ValueError("Pohon dengan split kategorikal belum didukung oleh model.js")
+                raise ValueError("Pohon dengan split kategorikal belum didukung oleh bearingcek.js")
             per_kelas.append({
                 "f": n["feature_idx"].tolist(),
                 "t": [float(x) for x in n["num_threshold"]],
@@ -55,10 +55,10 @@ def export_model(model=None, meta=None) -> dict:
 
 def build_page() -> str:
     """Kembalikan HTML lengkap halaman BearingCek, siap ditampilkan."""
-    html = (WEB / "index.template.html").read_text(encoding="utf-8")
-    contoh = (ROOT / "app" / "core" / "contoh_masukan.json").read_text(encoding="utf-8")
-    model_js = (WEB / "model.js").read_text(encoding="utf-8")
-    cm = ROOT / "reports" / "figures" / "fig06_confusion_matrix_test.png"
+    html = (UI / "bearingcek.html").read_text(encoding="utf-8")
+    contoh = (ROOT / "data" / "contoh_masukan.json").read_text(encoding="utf-8")
+    model_js = (UI / "bearingcek.js").read_text(encoding="utf-8")
+    cm = ROOT / "figures" / "fig06_confusion_matrix_test.png"
     cm_uri = "data:image/png;base64," + base64.b64encode(cm.read_bytes()).decode() if cm.exists() else ""
     model_json = json.dumps(export_model(), separators=(",", ":")).replace("</", "<\\/")
     return (html.replace("__MODELJS__", model_js)

@@ -1,4 +1,4 @@
-"""Pastikan antarmuka BearingCek (app/ui/web/model.js) memberi hasil yang sama dengan app/core/predict.py.
+"""Pastikan antarmuka BearingCek (app/ui/bearingcek.js) memberi hasil yang sama dengan src/predict.py.
 
 Butuh Node.js; tes dilewati jika `node` tidak tersedia.
 """
@@ -15,8 +15,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from app.core.export_web import build_page, export_model  # noqa: E402
-from app.core.predict import MasukanTidakValid, prediksi  # noqa: E402
+from src.tampilan import build_page, export_model  # noqa: E402
+from src.predict import MasukanTidakValid, prediksi  # noqa: E402
 
 NODE = shutil.which("node")
 HARNESS = """
@@ -38,7 +38,7 @@ def test_halaman_terbangun():
 def test_js_sama_dengan_python(tmp_path):
     df = pd.read_csv(ROOT / "data" / "raw.csv").drop(columns=["id_rekaman", "kondisi"])
     aneh = df[(df.kecepatan_rpm == 0) | (df.rms_g < 0) | df["kurtosis"].isna()]
-    contoh = json.loads((ROOT / "app" / "core" / "contoh_masukan.json").read_text())
+    contoh = json.loads((ROOT / "data" / "contoh_masukan.json").read_text())
     cases = [{k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in r.items()}
              for r in pd.concat([df.sample(500, random_state=0), aneh.head(200)]).to_dict("records")]
     cases += list(contoh.values()) + [{}, {**contoh["normal"], "rms_g": "abc"}, {**contoh["normal"], "crest_factor": None}]
@@ -46,7 +46,7 @@ def test_js_sama_dengan_python(tmp_path):
     (tmp_path / "m.json").write_text(json.dumps(export_model()))
     (tmp_path / "c.json").write_text(json.dumps(cases))
     (tmp_path / "h.js").write_text(HARNESS)
-    js = json.loads(subprocess.run([NODE, str(tmp_path / "h.js"), str(ROOT / "app" / "ui" / "web" / "model.js"),
+    js = json.loads(subprocess.run([NODE, str(tmp_path / "h.js"), str(ROOT / "app" / "ui" / "bearingcek.js"),
                                     str(tmp_path / "m.json"), str(tmp_path / "c.json")],
                                    capture_output=True, text=True, check=True).stdout)
     for c, j in zip(cases, js):

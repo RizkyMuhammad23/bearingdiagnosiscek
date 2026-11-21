@@ -1,0 +1,7 @@
+Masalah,Jumlah baris (data mentah),Penanganan,Alasan
+Baris duplikat persis (id_rekaman ikut sama),220,Dihapus dengan drop_duplicates,Rekaman yang sama terekspor dua kali; kalau dibiarkan bisa masuk train dan test sekaligus
+Label target tidak baku (16 variasi tulisan),915,Dipetakan ke 4 kelas baku,"OR, outer, Outer Race artinya sama"
+suhu_housing_C kosong,153,Diisi median data train (imputer di pipeline),"Kosongnya merata di semua kelas, jadi tidak membawa informasi"
+kurtosis kosong,456,Diisi median data train (imputer di pipeline),Sama seperti di atas
+kecepatan_rpm = 0,61,"Dijadikan kosong, lalu diisi median data train",Mustahil: motor diam tidak punya frekuensi dominan puluhan Hz
+rms_g negatif,45,Diambil nilai mutlaknya,puncak_g / |rms_g| tetap cocok dengan crest_factor

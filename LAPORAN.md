@@ -124,7 +124,7 @@ akurasi 0,905, sedangkan 15,2% sisanya hanya benar 51,6% dan memang perlu diliha
 
 Model disimpan sebagai satu *pipeline* scikit-learn (`artifacts/model.joblib`) yang berisi langkah fitur,
 imputasi, dan klasifikasi, ditemani `metadata.json` berisi versi, fitur masukan, rentang wajar, ambang, dan
-metrik. Validasi masukan dan prediksi ada di `app/core/predict.py`, dipakai oleh API FastAPI (`POST /predict`,
+metrik. Validasi masukan dan prediksi ada di `src/predict.py`, dipakai oleh API FastAPI (`POST /predict`,
 `GET /health`, `GET /metadata`). Aplikasi Streamlit (BearingCek) memuat `model.joblib` saat menyala lalu
 mengirim pohon-pohon modelnya ke halaman, sehingga diagnosis muncul seketika di browser. Aturan validasi dan
 prediksinya sama dengan `predict.py`; tes otomatis membandingkan keduanya pada ratusan rekaman, termasuk

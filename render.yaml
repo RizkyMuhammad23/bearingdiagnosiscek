@@ -1,9 +1,0 @@
-# Konfigurasi opsional untuk menaruh API FastAPI di Render (https://render.com).
-# Aplikasi Streamlit tidak membutuhkan API ini; lihat DEPLOY.md.
-services:
-  - type: web
-    name: bearing-diagnosis-api
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.api.main:app --host 0.0.0.0 --port $PORT
-    healthCheckPath: /health

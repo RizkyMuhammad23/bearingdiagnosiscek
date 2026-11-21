@@ -1,7 +1,7 @@
 """Pembersihan data dan pembuatan fitur untuk diagnosis kerusakan bearing.
 
 Modul ini dipakai di dua tempat:
-1. notebook pelatihan (notebooks/01_eda_sampai_model.ipynb), dan
+1. notebook pelatihan (notebooks/analisis.ipynb) dan src/train.py, dan
 2. saat prediksi di API maupun aplikasi Streamlit.
 
 Dengan begitu, fitur yang dilihat model saat dilatih sama persis dengan fitur

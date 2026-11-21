@@ -1,5 +1,5 @@
-// Port JavaScript dari app/core/predict.py + src/features.py.
-// Model HistGradientBoosting dibaca dari model.json (diekspor dari artifacts/model.joblib).
+// Port JavaScript dari src/predict.py + src/features.py.
+// Model HistGradientBoosting diterima dari src/tampilan.py (diekspor dari artifacts/model.joblib).
 (function (root) {
   const NUM_COLS = ["kecepatan_rpm", "beban_kN", "suhu_housing_C", "rms_g", "puncak_g", "kurtosis",
     "crest_factor", "energi_bpfo", "energi_bpfi", "energi_bsf", "frekuensi_dominan_hz"];

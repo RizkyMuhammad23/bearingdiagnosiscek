@@ -1,8 +1,8 @@
-"""Pelatihan model diagnosis bearing, sama persis dengan notebooks/01_eda_sampai_model.ipynb.
+"""Pelatihan model diagnosis bearing, sama persis dengan notebooks/analisis.ipynb.
 
 Menghasilkan angka yang dilaporkan (macro F1 validation baseline 0,7247 dan final 0,8197;
 macro F1 test baseline 0,7466 dan final 0,7991; ambang keyakinan 0,65), lalu menyimpan
-artifacts/model.joblib dan artifacts/metadata.json.
+artifacts/model.joblib, metadata.json, importance.csv, dan hasil_validation.csv.
 
 Jalankan dari akar repositori:
     python -m src.train                 # simpan ke artifacts/
@@ -23,6 +23,7 @@ import sklearn
 from sklearn.base import clone
 from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -97,6 +98,17 @@ def main(out_dir: Path) -> None:
     nama_final = max(hasil, key=hasil.get)
     print("model terpilih:", nama_final)
 
+    # Simpan perbandingan validation dan permutation importance model terpilih (data validation)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    pd.Series(hasil, name="macro_F1_val").rename_axis("model").sort_values(ascending=False).to_csv(
+        out_dir / "hasil_validation.csv")
+    m = KANDIDAT[nama_final]
+    pi = permutation_importance(m.named_steps["clf"], m[:-1].transform(X_val), y_val, scoring="f1_macro",
+                                n_repeats=5, random_state=RANDOM_STATE, n_jobs=-1)
+    nama_fitur = [n.split("__", 1)[1] for n in m.named_steps["prep"].get_feature_names_out()]
+    (pd.Series(pi.importances_mean, index=nama_fitur, name="penurunan_macro_f1").rename_axis("fitur")
+       .sort_values(ascending=False).to_csv(out_dir / "importance.csv"))
+
     # 4. Ambang keyakinan: nilai terkecil yang membuat tebakan lolos ambang benar >= 90% (validation)
     model_val = KANDIDAT[nama_final]
     proba = model_val.predict_proba(X_val)
@@ -122,7 +134,6 @@ def main(out_dir: Path) -> None:
     print(pd.DataFrame(confusion_matrix(y_test, pred_test, labels=CLASSES), index=CLASSES, columns=CLASSES))
 
     # 6. Simpan model dan metadata
-    out_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(model_final, out_dir / "model.joblib", compress=3)
     rep = classification_report(y_test, pred_test, labels=CLASSES, output_dict=True)
     metadata = {

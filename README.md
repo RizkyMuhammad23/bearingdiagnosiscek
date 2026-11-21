@@ -1,132 +1,120 @@
 # Diagnosis Kerusakan Bearing · Tim Bearing
 
-**Kasus:** 04 Diagnosis Kerusakan *Bearing* · **Aplikasi:** https://bearing-diagnosis-mkb.streamlit.app · **API:** [tautan API, opsional] · **Video:** [tautan video] · **Penjelasan kode (Colab):** [notebooks/02_penjelasan_kode_colab.ipynb](https://colab.research.google.com/github/RizkyMuhammad23/bearing-diagnosis/blob/main/notebooks/02_penjelasan_kode_colab.ipynb)
+**Kasus:** 04 Diagnosis Kerusakan *Bearing* · **Aplikasi:** https://bearing-diagnosis-mkb.streamlit.app · **Video:** [tautan video] · **Penjelasan kode:** [buka di Google Colab](https://colab.research.google.com/github/RizkyMuhammad23/bearing-diagnosis/blob/main/notebooks/penjelasan_kode_colab.ipynb)
 
 | Anggota | NIM | Bagian yang dikerjakan |
 |---|---|---|
-| Rizky Muhammad Ikhsan | 2403329 | EDA, pembersihan data, fitur (`src/features.py`), model dan evaluasi (notebook, `artifacts/`) |
-| Muhammad Khairul Irham | 2402023 | API dan aplikasi (`app/`), deploy, laporan, video |
+| Rizky Muhammad Ikhsan | 2403329 | EDA, pembersihan data, fitur, model, dan evaluasi |
+| Muhammad Khairul Irham | 2402023 | API dan aplikasi, deploy, laporan, video |
 
 ## Masalah dan pengguna
 
-Analis getaran di sebuah pabrik semen harus membaca ribuan rekaman getaran *bearing* sendirian. Model ini
-membaca ringkasan satu rekaman (RMS, puncak, kurtosis, energi di frekuensi khas kerusakan, frekuensi dominan,
-kecepatan, beban, suhu) lalu menebak kondisinya: `normal`, `outer_race` (cincin luar rusak), `inner_race`
-(cincin dalam rusak), atau `bola` (bola rusak). Penggunanya teknisi pemeliharaan, yang dari hasil itu tahu
-suku cadang apa yang perlu disiapkan dan rekaman mana yang tetap harus dilihat analis.
+Analis getaran di pabrik semen harus membaca ribuan rekaman getaran *bearing* sendirian. Model membaca ringkasan
+satu rekaman lalu menebak kondisinya: `normal`, `outer_race` (cincin luar rusak), `inner_race` (cincin dalam rusak),
+atau `bola`. Penggunanya teknisi pemeliharaan, yang dari hasil itu tahu suku cadang apa yang perlu disiapkan dan
+rekaman mana yang tetap harus dilihat analis.
 
 ## Data dan pembersihan
 
-Data mentah berisi 15.220 rekaman. Setelah dibersihkan tersisa 15.000 rekaman dengan empat kelas: `normal`
-54,8%, `outer_race` 20,3%, `inner_race` 14,5%, dan `bola` 10,4%.
-
 | Masalah yang ditemukan | Jumlah baris | Cara menangani |
 |---|---|---|
-| Baris duplikat persis (`id_rekaman` juga sama) | 220 | Dihapus dengan `drop_duplicates` sebelum data dibagi, supaya rekaman yang sama tidak masuk *train* dan *test* sekaligus |
-| Label `kondisi` ditulis dalam 16 variasi (`NORMAL`, `ok`, `OR`, `Outer Race`, `BALL`, `IR`, ...) | 915 | Dipetakan ke 4 kelas baku (`LABEL_MAP` di `src/features.py`) |
-| `kurtosis` kosong | 456 | Diisi median data *train* oleh imputer di dalam *pipeline* |
-| `suhu_housing_C` kosong | 153 | Sama seperti di atas. Kosongnya merata di semua kelas (sekitar 1% dan 3%), jadi tidak membawa informasi |
-| `kecepatan_rpm` = 0 | 61 | Dijadikan kosong lalu diisi median. Motor yang diam tidak mungkin punya frekuensi dominan puluhan hertz, jadi ini sensor yang gagal membaca |
-| `rms_g` negatif | 45 | Diambil nilai mutlaknya. `puncak_g / abs(rms_g)` tetap sama dengan `crest_factor` (selisih maksimum 0,0008), jadi hanya tandanya yang salah |
+| Baris duplikat persis | 220 | `drop_duplicates` sebelum data dibagi |
+| Label `kondisi` ditulis dalam 16 variasi (`NORMAL`, `ok`, `OR`, `BALL`, ...) | 915 | dipetakan ke 4 kelas baku |
+| `kurtosis` kosong | 456 | diisi median data *train* di dalam *pipeline* |
+| `suhu_housing_C` kosong | 153 | diisi median data *train* di dalam *pipeline* |
+| `kecepatan_rpm` = 0 (sensor gagal membaca) | 61 | jadi kosong, lalu diisi median |
+| `rms_g` negatif (hanya tandanya salah) | 45 | diambil nilai mutlaknya |
 
-Jumlah baris dihitung dari data mentah (sebelum duplikat dihapus).
+Rincian dan alasannya ada di `data/log_pembersihan.csv`. Setelah dibersihkan tersisa 15.000 rekaman
+(`data/bersih.csv`): `normal` 54,8%, `outer_race` 20,3%, `inner_race` 14,5%, `bola` 10,4%.
 
-## Hasil
+## Hasil (macro F1)
 
-Data dibagi acak secara *stratified*: *train* 10.500, *validation* 2.250, *test* 2.250 rekaman.
-
-| Model | *Macro* F1 *validation* | *Macro* F1 *test* |
+| Model | macro F1 *validation* | macro F1 *test* |
 |---|---|---|
-| *Baseline*: regresi logistik multikelas, fitur asli | 0,725 | 0,747 |
-| HistGradientBoosting + fitur turunan (final) | 0,820 | 0,799 |
+| *Baseline*: regresi logistik, fitur asli | 0,7247 | 0,7466 |
+| *Random forest* + fitur turunan | 0,8057 | tidak dibuka |
+| HistGradientBoosting + fitur turunan (final) | 0,8197 | **0,7991** |
 
-F1 per kelas di data *test*: `normal` 0,888, `outer_race` 0,834, `inner_race` 0,780, `bola` 0,694.
-
-Keputusan kelas memakai *argmax* (kelas dengan probabilitas tertinggi). *Threshold* yang dipakai adalah
-**ambang keyakinan 0,65**: jika probabilitas tertinggi di bawah 0,65, aplikasi tetap menampilkan tebakan
-tetapi menandainya "perlu dicek analis". Ambang ini dipilih dari data *validation* sebagai nilai terkecil yang
-membuat tebakan yang lolos ambang benar minimal 90%. Alasannya bisnis: kesalahan terbanyak model adalah
-*bearing* rusak yang ditebak normal, dan *bearing* rusak yang lolos pemeriksaan tetap dipakai sampai gagal.
-Di data *test*, 84,8% rekaman lolos ambang dengan akurasi 0,905. Sisanya (15,2%) akurasinya hanya 0,516,
-jadi memang perlu dilihat manusia.
-
-Fitur yang paling berpengaruh (*permutation importance* di data *validation*) adalah `orde_frekuensi`, yaitu
-frekuensi dominan dibagi frekuensi putar poros. Kerusakan cincin luar muncul di sekitar 3,6× putaran, cincin
-dalam di sekitar 5,4×, dan bola di sekitar 2,3×, sedangkan rekaman normal di 1× dan 2×.
+F1 per kelas di *test*: `normal` 0,888, `outer_race` 0,834, `inner_race` 0,780, `bola` 0,694. Fitur terpenting
+(`artifacts/importance.csv`) adalah `orde_frekuensi`, yaitu frekuensi dominan dibagi frekuensi putar poros, disusul
+suhu, kecepatan, dan beban. Kelas dipilih dengan *argmax*; jika probabilitas tertinggi di bawah **ambang keyakinan
+0,65**, hasilnya ditandai "perlu dicek analis". Di *test*, 84,8% rekaman lolos ambang dengan akurasi 0,905.
 
 ## Cara menjalankan
 
 ```bash
-pip install -r requirements-dev.txt   # cukup requirements.txt jika hanya menjalankan aplikasi
-
-# latih ulang tanpa notebook (angka sama dengan laporan), sekitar 30 detik
-python -m src.train
-
-# latih ulang dari awal (EDA sampai artifacts/), sekitar 1 menit
-jupyter nbconvert --to notebook --execute --inplace notebooks/01_eda_sampai_model.ipynb
-
-uvicorn app.api.main:app --reload       # API, dokumentasi di http://127.0.0.1:8000/docs
-streamlit run app/ui/streamlit_app.py   # aplikasi
-python -m pytest -q                     # tes
+pip install -r requirements.txt
+python -m src.train                                   # latih ulang model dan artifacts (sekitar 30 detik)
+uvicorn app.api.main:app --reload                     # API (POST /predict, dokumentasi di /docs)
+streamlit run app/ui/streamlit_app.py                 # aplikasi BearingCek
+python -m pytest -q                                   # tes
 ```
 
-Contoh memanggil API:
-
+Contoh API:
 ```bash
-curl -X POST http://127.0.0.1:8000/predict -H "content-type: application/json" -d '{
-  "posisi_sensor": "drive_end", "kecepatan_rpm": 2525, "beban_kN": 2.71, "suhu_housing_C": 55.5,
-  "rms_g": 0.6077, "puncak_g": 1.998, "kurtosis": 3.216, "crest_factor": 3.288,
-  "energi_bpfo": 0.2455, "energi_bpfi": 0.1137, "energi_bsf": 0.0341, "frekuensi_dominan_hz": 41.2}'
+curl -X POST localhost:8000/predict -H "Content-Type: application/json" \
+  -d '{"posisi_sensor":"drive_end","kecepatan_rpm":2525,"beban_kN":2.71,"suhu_housing_C":55.5,"rms_g":0.6077,
+       "puncak_g":1.998,"kurtosis":3.216,"crest_factor":3.288,"energi_bpfo":0.2455,"energi_bpfi":0.1137,
+       "energi_bsf":0.0341,"frekuensi_dominan_hz":41.2}'
 ```
 
-Aplikasi Streamlit menampilkan antarmuka BearingCek (`app/ui/web/`). Saat menyala, aplikasi memuat
-`artifacts/model.joblib`, mengekspor pohon-pohon model ke halaman (`app/core/export_web.py`), lalu halaman
-menghitung prediksi di browser dengan aturan yang sama seperti `app/core/predict.py`. Kesamaan hasil keduanya
-diuji di `tests/test_web_parity.py` (butuh Node.js). Panduan deploy ada di [DEPLOY.md](DEPLOY.md).
+Untuk mencoba unggah banyak rekaman di aplikasi, pakai `data/contoh_upload.csv` (40 rekaman, termasuk masukan
+tidak wajar dan mustahil).
 
 ## Struktur repositori
 
 ```
-notebooks/      notebook dari EDA sampai penyimpanan model
-data/           data mentah (raw.csv); data bersih dibuat ulang oleh clean_raw()
-src/features.py pembersihan dan pembuatan fitur, dipakai saat pelatihan dan saat prediksi
-src/train.py    skrip pelatihan (sama dengan notebook 01), menulis artifacts/
-artifacts/      model.joblib + metadata.json
-app/core/       validasi masukan dan prediksi, dipakai bersama oleh API dan aplikasi
-app/api/        API (FastAPI)
-app/ui/         antarmuka: streamlit_app.py + halaman BearingCek di app/ui/web/
-reports/        grafik, tangkapan layar aplikasi, laporan
-tests/          tes validasi masukan dan prediksi
-docs/           brief kasus dan naskah video
+notebooks/analisis.ipynb              EDA sampai evaluasi dan penyimpanan model
+notebooks/penjelasan_kode_colab.ipynb penjelasan kode untuk video (dibuka di Google Colab)
+data/                                 raw.csv, bersih.csv, log_pembersihan.csv, contoh masukan untuk aplikasi
+src/features.py                       pembersihan dan fitur (dipakai saat latih dan prediksi)
+src/train.py, predict.py              pelatihan, serta validasi masukan dan prediksi
+src/tampilan.py                       komponen tampilan (bangun halaman BearingCek dari model)
+artifacts/                            model.joblib, metadata.json, importance.csv, hasil_validation.csv
+app/                                  API FastAPI dan antarmuka Streamlit (BearingCek)
+figures/                              grafik dan tangkapan layar untuk laporan
+docs/                                 laporan (PDF/Word), skrip video, brief kasus
+tests/                                tes validasi masukan dan kesamaan hasil aplikasi dengan predict.py
 ```
+
+Aplikasi Streamlit memuat `artifacts/model.joblib` saat menyala, lalu `src/tampilan.py` mengirim pohon-pohon model ke
+halaman BearingCek (`app/ui/bearingcek.html`), sehingga diagnosis dihitung di browser dengan aturan yang sama seperti
+`src/predict.py`. API memakai `src/predict.py` secara langsung.
+
+## Deploy
+
+Aplikasi berjalan di Streamlit Community Cloud: repositori ini, *branch* `main`, *main file*
+`app/ui/streamlit_app.py`, Python 3.13. Setiap *push* ke `main` otomatis memperbarui aplikasi. Aplikasi gratis
+tertidur jika lama tidak dibuka, jadi buka beberapa menit sebelum demo.
+
+API bersifat opsional dan tidak dipanggil oleh aplikasi. Untuk menaruhnya di Render: *New → Web Service*, *build*
+`pip install -r requirements.txt`, *start* `uvicorn app.api.main:app --host 0.0.0.0 --port $PORT`, dan variabel
+lingkungan `PYTHON_VERSION=3.13.0`.
 
 ## Penanganan masukan tidak wajar
 
-Masukan yang mustahil ditolak dengan pesan yang menjelaskan alasannya: kolom wajib kosong, teks di kolom angka,
-nilai tak hingga, energi negatif, `puncak_g` lebih kecil dari `rms_g`, `rms_g` = 0, atau posisi sensor yang
-tidak dikenal. API mengembalikan kode 422 beserta daftar alasannya.
-
-Masukan yang aneh tetapi masih bisa diproses tetap diprediksi dengan catatan: `rms_g` negatif diambil nilai
-mutlaknya, `kecepatan_rpm` = 0 atau kolom opsional yang kosong diisi median, `crest_factor` kosong dihitung
-dari puncak dibagi RMS, dan nilai di luar rentang data latih diberi peringatan. Jika ada nilai di luar rentang
-atau kecepatan putarnya tidak diketahui, hasilnya otomatis ditandai "perlu dicek analis".
+Masukan mustahil ditolak dengan alasannya (API membalas kode 422): kolom wajib kosong, teks di kolom angka, nilai
+tak hingga, energi negatif, `puncak_g` < `rms_g`, `rms_g` = 0, atau posisi sensor tidak dikenal. Masukan aneh tetap
+diprediksi dengan catatan: `rms_g` negatif diambil nilai mutlaknya, `kecepatan_rpm` = 0 dan kolom opsional kosong
+diisi median, `crest_factor` kosong dihitung dari puncak/RMS, dan nilai di luar rentang data latih diberi
+peringatan serta ditandai "perlu dicek analis".
 
 ## Keterbatasan
 
-- Kesalahan terbesar adalah *bearing* rusak yang ditebak normal (232 dari 2.250 rekaman *test*), terutama
-  ketika frekuensi dominannya masih di 1× atau 2× putaran. Kelas `bola` paling lemah (F1 0,69).
-- Data bersifat sintetis dan hanya berisi ringkasan. Model belum pernah melihat spektrum lengkap, jenis
-  *bearing* lain, atau kecepatan di luar 1.200 sampai 3.000 rpm.
-- Kerusakan ganda (misalnya cincin luar dan bola sekaligus) tidak ada di data, jadi model selalu memilih satu.
-- Tidak ada informasi motor atau waktu, sehingga model tidak bisa memakai tren dari rekaman sebelumnya.
+- Kesalahan terbesar adalah *bearing* rusak yang ditebak normal (232 dari 2.250 rekaman *test*), terutama jika
+  frekuensi dominannya di 1× atau 2× putaran. Kelas `bola` paling lemah (F1 0,694).
+- Data sintetis dan hanya ringkasan: satu jenis *bearing*, kecepatan 1.200 sampai 3.000 rpm.
+- Kerusakan ganda tidak ada di data, jadi model selalu memilih satu kelas.
+- Tidak ada identitas motor atau waktu, sehingga tren dari rekaman sebelumnya belum bisa dipakai.
 
 ## Daftar periksa sebelum dikumpulkan
 
-- [ ] Repositori bersifat publik dan setiap anggota memiliki *commit*
-- [x] *Notebook* dapat dijalankan ulang dari awal sampai akhir tanpa galat
-- [x] *Baseline* wajib dilaporkan dan dibandingkan
-- [x] Data *test* hanya dibuka satu kali, di akhir
-- [x] `artifacts/metadata.json` berisi versi model, fitur masukan, *threshold*, dan metrik
-- [ ] Aplikasi dapat dibuka orang lain melalui tautan, termasuk dari ponsel
-- [x] Aplikasi tidak berhenti mendadak ketika menerima masukan yang tidak wajar
-- [ ] Laporan paling banyak 6 halaman dan video paling lama 5 menit
+- [ ] Repositori publik dan semua anggota punya *commit*
+- [x] Notebook bisa dijalankan dari awal sampai akhir
+- [x] Baseline dilaporkan dan dibandingkan
+- [x] Data test dibuka satu kali, di akhir
+- [x] `artifacts/metadata.json` berisi versi, fitur, parameter, *threshold*, dan metrik
+- [x] Aplikasi dideploy dan bisa dibuka dari ponsel
+- [x] Masukan tidak wajar ditolak atau ditandai dengan pesan jelas
+- [ ] Laporan PDF maksimal 6 halaman, video maksimal 5 menit

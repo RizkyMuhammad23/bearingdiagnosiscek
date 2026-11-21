@@ -9,10 +9,10 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from app.core.predict import MasukanTidakValid, prediksi, prediksi_banyak  # noqa: E402
+from src.predict import MasukanTidakValid, prediksi, prediksi_banyak  # noqa: E402
 from src.features import CLASSES, clean_raw  # noqa: E402
 
-CONTOH = json.loads((ROOT / "app" / "core" / "contoh_masukan.json").read_text())
+CONTOH = json.loads((ROOT / "data" / "contoh_masukan.json").read_text())
 
 
 @pytest.mark.parametrize("kelas", CLASSES)

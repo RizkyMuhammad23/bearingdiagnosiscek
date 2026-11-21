@@ -2,7 +2,7 @@
 
 Skrip lengkap ada di [`Skrip_Video_Demo_Diagnosis_Bearing.docx`](Skrip_Video_Demo_Diagnosis_Bearing.docx).
 Bagian penjelasan kode memakai notebook Google Colab
-[`notebooks/02_penjelasan_kode_colab.ipynb`](https://colab.research.google.com/github/RizkyMuhammad23/bearing-diagnosis/blob/main/notebooks/02_penjelasan_kode_colab.ipynb);
+[`notebooks/penjelasan_kode_colab.ipynb`](https://colab.research.google.com/github/RizkyMuhammad23/bearing-diagnosis/blob/main/notebooks/penjelasan_kode_colab.ipynb);
 kalimat yang diucapkan ada di notebook itu, di bawah setiap sel.
 
 Pembicara tidak bergantian: Rizky menyampaikan seluruh bagiannya dulu, lalu Irham sampai akhir.

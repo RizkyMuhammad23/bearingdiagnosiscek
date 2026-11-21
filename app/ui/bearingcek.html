@@ -410,7 +410,7 @@ code { font-family: var(--mono); font-size: .88em; }
           <div class="card-head"><h3>Yang dibaca model</h3></div>
           <p>Fitur terpenting adalah orde frekuensi: frekuensi dominan dibagi frekuensi putar poros (rpm/60). Kerusakan cincin luar muncul di sekitar 3,6× putaran, cincin dalam di sekitar 5,4×, dan bola di sekitar 2,3×. Rekaman normal berkumpul di 1× dan 2×.</p>
           <p>Kesalahan terbanyak adalah bearing rusak yang ditebak normal, terutama ketika frekuensi dominannya masih di 1× atau 2× putaran. Karena itu hasil dengan keyakinan di bawah 65% ditandai perlu dicek analis.</p>
-          <p>Saat aplikasi menyala, server memuat <code>artifacts/model.joblib</code> lalu mengirim pohon-pohon keputusannya ke halaman ini, sehingga diagnosis langsung muncul tanpa menunggu server. Hasilnya identik dengan <code>app/core/predict.py</code> dan API (diuji pada 3.719 rekaman).</p>
+          <p>Saat aplikasi menyala, server memuat <code>artifacts/model.joblib</code> lalu mengirim pohon-pohon keputusannya ke halaman ini, sehingga diagnosis langsung muncul tanpa menunggu server. Hasilnya identik dengan <code>src/predict.py</code> dan API (diuji pada 3.719 rekaman).</p>
         </div>
         <div class="card span2">
           <div class="card-head"><h3>Confusion matrix (test)</h3></div>

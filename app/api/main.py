@@ -10,11 +10,16 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import Optional, Union
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # agar src/ bisa diimpor
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from app.core.predict import CLASSES, MasukanTidakValid, load_metadata, load_model, prediksi
+from src.predict import CLASSES, MasukanTidakValid, load_metadata, load_model, prediksi
 
 @asynccontextmanager
 async def lifespan(_app):
