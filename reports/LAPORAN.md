@@ -1,6 +1,6 @@
 ---
 title: "Diagnosis Kerusakan Bearing dari Ringkasan Rekaman Getaran"
-subtitle: "Kasus 04 · Proyek Kelompok Machine Learning MKB UPI · Tim [nama tim]"
+subtitle: "Kasus 04 · Proyek Kelompok Machine Learning MKB UPI · Tim Bearing"
 ---
 
 ## 1. Masalah
@@ -178,7 +178,7 @@ tren bisa dipakai, dan mencoba fitur dari spektrum lengkap, khususnya *sideband*
 | Anggota | NIM | Bagian |
 |--------|----|------------|
 | Rizky Muhammad Ikhsan | 2403329 | EDA, pembersihan data, fitur, model dan evaluasi |
-| [nama] | [NIM] | API, aplikasi Streamlit, deploy, laporan, video |
+| Muhammad Khairul Irham | 2402023 | API, aplikasi Streamlit, deploy, laporan, video |
 
 **Penggunaan asisten AI.** [Isi sesuai yang sebenarnya, misalnya: Claude dipakai untuk menyusun kerangka
 kode notebook, API, dan aplikasi, serta merapikan bahasa laporan. Semua keputusan pembersihan data, pilihan

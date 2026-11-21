@@ -5,7 +5,7 @@
 | Anggota | NIM | Bagian yang dikerjakan |
 |---|---|---|
 | Rizky Muhammad Ikhsan | 2403329 | EDA, pembersihan data, fitur (`src/features.py`), model dan evaluasi (notebook, `artifacts/`) |
-| [nama] | [NIM] | API dan aplikasi (`app/`), deploy, laporan, video |
+| Muhammad Khairul Irham | 2402023 | API dan aplikasi (`app/`), deploy, laporan, video |
 
 ## Masalah dan pengguna
 
