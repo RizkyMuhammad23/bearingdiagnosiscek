@@ -59,6 +59,9 @@ dalam di sekitar 5,4×, dan bola di sekitar 2,3×, sedangkan rekaman normal di 1
 ```bash
 pip install -r requirements-dev.txt   # cukup requirements.txt jika hanya menjalankan aplikasi
 
+# latih ulang tanpa notebook (angka sama dengan laporan), sekitar 30 detik
+python -m src.train
+
 # latih ulang dari awal (EDA sampai artifacts/), sekitar 1 menit
 jupyter nbconvert --to notebook --execute --inplace notebooks/01_eda_sampai_model.ipynb
 
@@ -87,6 +90,7 @@ diuji di `tests/test_web_parity.py` (butuh Node.js). Panduan deploy ada di [DEPL
 notebooks/      notebook dari EDA sampai penyimpanan model
 data/           data mentah (raw.csv); data bersih dibuat ulang oleh clean_raw()
 src/features.py pembersihan dan pembuatan fitur, dipakai saat pelatihan dan saat prediksi
+src/train.py    skrip pelatihan (sama dengan notebook 01), menulis artifacts/
 artifacts/      model.joblib + metadata.json
 app/core/       validasi masukan dan prediksi, dipakai bersama oleh API dan aplikasi
 app/api/        API (FastAPI)
